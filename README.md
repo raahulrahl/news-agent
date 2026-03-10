@@ -344,5 +344,6 @@ uvx cookiecutter https://github.com/getbindu/create-bindu-agent.git
   <a href="https://bindus.directory">🌐 Agent Directory</a>
 </p>
 
-#   n e w s - a g e n t  
+#   n e w s - a g e n t 
+ 
  

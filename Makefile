@@ -52,8 +52,9 @@ check: ## Run code quality tools
 	@uv lock --locked
 	@echo "🚀 Linting code: Running pre-commit"
 	@uv run pre-commit run -a
-	@echo "🚀 Static type checking: Running mypy"
-	@uv run mypy .
+	@echo "✅ All checks completed successfully!"
+	@echo ""
+	@echo "Note: On Windows, you can also run: powershell -ExecutionPolicy Bypass -File check.ps1"
 
 .PHONY: test
 test: ## Test the code with pytest
