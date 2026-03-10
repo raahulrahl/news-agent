@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Paraschamoli/news-agent/actions/workflows/main.yml?query=branch%3Amain">
+  <a href="https://github.com/Paraschamoli/news-agent/actions/workflows/main.yml?query=branch%3Dmain">
     <img src="https://img.shields.io/github/actions/workflow/status/Paraschamoli/news-agent/main.yml?branch=main" alt="Build status">
   </a>
   <a href="https://img.shields.io/github/license/Paraschamoli/news-agent">
@@ -37,7 +37,7 @@ News Agent is a sophisticated multi-agent news aggregation system built on the [
 
 ### Prerequisites
 
-- Python 3.10+
+- Python 3.12+
 - [uv](https://github.com/astral-sh/uv) package manager
 - API keys for OpenRouter and Mem0 (both have free tiers)
 
@@ -65,7 +65,7 @@ Edit `.env` and add your API keys:
 
 | Key | Get It From | Required |
 |-----|-------------|----------|
-| `OPENROUTER_API_KEY` | [OpenRouter](https://openrouter.ai/keys) | ✅ Yes |
+| `OPENROUTER_API_KEY` | [OpenRouter](https://openrouter.ai/keys) | Yes |
 | `MEM0_API_KEY` | [Mem0 Dashboard](https://app.mem0.ai/dashboard/api-keys) | If you want to use Mem0 tools |
 
 ### Run the Agent
@@ -96,34 +96,47 @@ gh repo create Paraschamoli/news-agent --public --source=. --remote=origin --pus
 ### Example Queries
 
 ```bash
-# Example query 1
-"[Add example query here]"
+# Full multi-agent processing
+"Process all news sources and generate a comprehensive summary"
 
-# Example query 2
-"[Add another example]"
+# Trend analysis
+"Analyze trending topics across all RSS feeds"
+
+# Source-specific processing
+"Get the latest stories from Hacker News and TechCrunch"
+
+# Topic-focused analysis
+"Generate a news summary focused on AI and machine learning topics"
+
+# Comparative analysis
+"Compare news coverage between different sources"
+
+# Real-time monitoring
+"Find breaking news and emerging trends in technology"
 ```
 
 ### Input Formats
 
 **Plain Text:**
 ```
-[Describe expected input format]
+Process {source} news with {specific requirements}
 ```
 
 **JSON:**
 ```json
 {
-  "content": "[example content]",
-  "focus": "[example focus]"
+  "content": "Get comprehensive news analysis from all sources",
+  "focus": "trend-analysis"
 }
 ```
 
 ### Output Structure
 
 The agent returns structured output with:
-- **[Output Component 1]**: Description
-- **[Output Component 2]**: Description
-- **[Output Component 3]**: Description
+- **Executive Overview**: Global statistics and key findings
+- **Source-Specific Analysis**: Individual RSS feed summaries
+- **Cross-Source Trends**: Topic clustering and pattern analysis
+- **Key Insights**: Actionable intelligence and recommendations
 
 ---
 
@@ -137,7 +150,6 @@ For complete API documentation, request/response formats, and examples, visit:
 
 📚 **[Bindu API Reference - Send Message to Agent](https://docs.getbindu.com/api-reference/all-the-tasks/send-message-to-agent)**
 
-
 ### Additional Resources
 
 - 📖 [Full API Documentation](https://docs.getbindu.com/api-reference/all-the-tasks/send-message-to-agent)
@@ -148,30 +160,42 @@ For complete API documentation, request/response formats, and examples, visit:
 
 ## 🎯 Skills
 
-### news_agent (v1.0.0)
+### news-agents (v1.0.0)
 
 **Primary Capability:**
-- [Describe what this skill does]
-- [Add key features]
+- Multi-agent RSS news processing and analysis
+- Parallel processing of 6 major news sources
+- Advanced content categorization and trend identification
 
 **Features:**
-- [Feature 1]
-- [Feature 2]
-- [Feature 3]
+- 🤖 Multi-agent coordination with task distribution
+- 📰 Parallel RSS processing (Hacker News, WSJ Tech/Markets, TechCrunch, AI News, Wired)
+- 🎯 Advanced XML parsing with namespace support
+- 📊 Automatic content categorization and topic clustering
+- 🔄 Cross-source trend analysis and pattern recognition
+- 📝 Professional markdown summary generation
+- ⚡ Real-time news fetching with retry logic
+
+**News Sources:**
+- **Hacker News**: Technology news and discussions
+- **Wall Street Journal (Tech)**: Business and technology coverage
+- **Wall Street Journal (Markets)**: Financial markets and business news
+- **TechCrunch**: Startup and technology industry coverage
+- **AI News**: Artificial intelligence industry news and analysis
+- **Wired**: Technology, science, and culture coverage
 
 **Best Used For:**
-- [Use case 1]
-- [Use case 2]
-- [Use case 3]
-
-**Not Suitable For:**
-- [Anti-pattern 1]
-- [Anti-pattern 2]
+- Daily news briefings and executive summaries
+- Industry trend monitoring and analysis
+- Competitive intelligence gathering
+- Research and content curation
+- Market sentiment analysis through news coverage
 
 **Performance:**
-- Average processing time: ~[X] seconds
-- Max concurrent requests: [N]
-- Memory per request: [X]MB
+- Average processing time: ~8 seconds
+- Max concurrent requests: 6
+- Memory per request: ~512MB
+- Stories per source: 30 max
 
 ---
 
@@ -245,12 +269,13 @@ GitHub Actions will automatically:
 news-agent/
 ├── news_agent/
 │   ├── skills/
-│   │   └── news_agent/
+│   │   └── news-agents/
 │   │       ├── skill.yaml          # Skill configuration
 │   │       └── __init__.py
 │   ├── __init__.py
 │   ├── __main__.py
 │   ├── main.py                     # Agent entry point
+│   ├── tools.py                   # RSS processing tools
 │   └── agent_config.json           # Agent configuration
 ├── tests/
 │   └── test_main.py
@@ -343,7 +368,5 @@ uvx cookiecutter https://github.com/getbindu/create-bindu-agent.git
   <a href="https://discord.gg/3w5zuYUuwt">💬 Join Discord</a> •
   <a href="https://bindus.directory">🌐 Agent Directory</a>
 </p>
-
-#   n e w s - a g e n t 
  
  
