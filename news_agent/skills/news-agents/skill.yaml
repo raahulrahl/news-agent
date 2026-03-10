@@ -1,0 +1,169 @@
+id: news-agents-v1
+name: news-agents
+version: 1.0.0
+author: paras@getbindu.com
+
+# Description
+description: |
+  Multi-agent news aggregation and analysis system that processes RSS feeds from
+  multiple sources, categorizes content, identifies trends, and generates comprehensive
+  summaries using coordinated sub-agent architecture.
+
+# Tags and Modes
+tags:
+  - news-aggregation
+  - rss-processing
+  - multi-agent
+  - content-analysis
+  - trend-identification
+  - news-summarization
+  - information-gathering
+  - content-categorization
+
+input_modes:
+  - text/plain
+  - application/json
+
+output_modes:
+  - text/plain
+  - application/json
+  - text/markdown
+
+# Example Queries
+examples:
+  - "Process all news sources and generate a comprehensive summary"
+  - "Analyze trending topics across all RSS feeds"
+  - "Get the latest stories from Hacker News and TechCrunch"
+  - "Identify emerging trends in technology news"
+  - "Generate a news summary focused on AI and machine learning topics"
+  - "Compare news coverage between different sources"
+  - "Find stories about specific companies or topics"
+
+# Detailed Capabilities
+capabilities_detail:
+  primary_capability:
+    supported: true
+    description: "Multi-agent RSS news processing and analysis"
+    features:
+      - "Parallel processing of 6 RSS feed sources (Hacker News, WSJ Tech/Markets, TechCrunch, AI News, Wired)"
+      - "Advanced RSS parsing with namespace support for complex feeds"
+      - "Automatic content categorization and topic identification"
+      - "Cross-source trend analysis and pattern recognition"
+      - "Professional news summary generation with structured formatting"
+      - "Multi-agent coordination with task distribution and aggregation"
+      - "Real-time news fetching with retry logic and error handling"
+    limitations: "RSS feeds may have delays of 15-30 minutes for very recent news"
+
+  secondary_capability:
+    supported: true
+    description: "News trend analysis and content categorization"
+    features:
+      - "Topic clustering and category distribution analysis"
+      - "Cross-source story comparison and duplicate detection"
+      - "Emerging trend identification with frequency analysis"
+      - "Source-specific content patterns and focus areas"
+      - "Time-based trend analysis and topic evolution"
+
+# Requirements
+requirements:
+  packages:
+    - agno>=2.2.0
+    - bindu>=2026.1.7
+    - httpx>=0.28.1
+    - pandas>=2.3.3
+    - numpy>=2.0
+    - tenacity>=9.1.2
+    - python-dotenv>=1.0.1
+    - openai>=1.60.0
+  system:
+    - "Internet access for RSS feed fetching"
+  min_memory_mb: 512
+  external_services:
+    - "RSS feed sources (Hacker News, WSJ, TechCrunch, AI News, Wired)"
+
+# Performance Metrics
+performance:
+  avg_processing_time_ms: 8000
+  avg_time_per_source_ms: 2000
+  max_concurrent_requests: 6
+  memory_per_request_mb: 512
+  timeout_seconds: 120
+  max_stories_per_source: 30
+  scalability: horizontal
+
+# Tool Restrictions
+allowed_tools:
+  - get_rss_stories
+  - get_all_rss_stories
+  - categorize_stories_by_topic
+  - generate_news_summary
+  - create_sub_agent_task
+  - process_sub_agent_task
+  - coordinate_multi_agent_processing
+  - Mem0Tools
+
+# Rich Documentation
+documentation:
+  overview: |
+    Multi-agent news aggregation system that processes RSS feeds from multiple
+    high-quality sources, categorizes content, identifies trends, and generates
+    comprehensive summaries using coordinated sub-agent architecture.
+
+    The system mimics the functionality of the original news-agents project
+    but with modern production-ready architecture using the Bindu framework.
+
+  key_features:
+    - "Parallel RSS processing from 6 major news sources"
+    - "Advanced XML parsing with namespace support for complex feeds"
+    - "Multi-agent coordination with task distribution and aggregation"
+    - "Automatic content categorization and topic clustering"
+    - "Cross-source trend analysis and pattern recognition"
+    - "Professional markdown summary generation"
+    - "Error handling with retry logic and graceful degradation"
+    - "Real-time news fetching with proper HTTP client management"
+
+  use_cases:
+    - "Daily news briefings and executive summaries"
+    - "Industry trend monitoring and analysis"
+    - "Competitive intelligence gathering"
+    - "Research and content curation"
+    - "Market sentiment analysis through news coverage"
+    - "Topic-specific news aggregation and filtering"
+
+  methodology:
+    - "Multi-Agent Coordination: Main agent distributes tasks to sub-agents"
+    - "Parallel Processing: All RSS sources processed concurrently"
+    - "Content Parsing: Advanced XML parsing with namespace handling"
+    - "Categorization: Automatic topic identification and clustering"
+    - "Trend Analysis: Cross-source pattern recognition and frequency analysis"
+    - "Summary Generation: Structured markdown output with executive overview"
+
+  data_sources:
+    - "Hacker News: Technology news and discussions"
+    - "Wall Street Journal (Tech): Business and technology coverage"
+    - "Wall Street Journal (Markets): Financial markets and business news"
+    - "TechCrunch: Startup and technology industry coverage"
+    - "AI News: Artificial intelligence industry news and analysis"
+    - "Wired: Technology, science, and culture coverage"
+
+  output_format:
+    - "Executive summary with global statistics and key trends"
+    - "Source-specific summaries with individual feed analysis"
+    - "Category distribution tables and topic clustering"
+    - "Cross-source trend identification with frequency analysis"
+    - "Structured markdown format for easy integration"
+    - "JSON output for programmatic access"
+
+  limitations:
+    - "RSS feeds may have 15-30 minute delays for very recent content"
+    - "Some feeds may have rate limits or access restrictions"
+    - "Content extraction depends on RSS feed structure and quality"
+    - "Trend analysis is based on available content and may miss broader context"
+
+  best_practices:
+    - "Process all sources simultaneously for comprehensive coverage"
+    - "Use category-based filtering for topic-specific analysis"
+    - "Monitor failed sources and implement retry strategies"
+    - "Combine multiple summaries for comprehensive reporting"
+    - "Use trend analysis for identifying emerging topics and patterns"
+    - "Validate RSS feed structure and handle parsing errors gracefully"
