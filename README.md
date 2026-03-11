@@ -9,8 +9,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Paraschamoli/news-agent/actions/workflows/main.yml?query=branch%3Dmain">
-    <img src="https://img.shields.io/github/actions/workflow/status/Paraschamoli/news-agent/main.yml?branch=main" alt="Build status">
+  <a href="https://github.com/Paraschamoli/news-agent/actions/workflows/build-and-push.yml?query=branch%3Dmain">
+    <img src="https://img.shields.io/github/actions/workflow/status/Paraschamoli/news-agent/build-and-push.yml?branch=main" alt="Build status">
   </a>
   <a href="https://img.shields.io/github/license/Paraschamoli/news-agent">
     <img src="https://img.shields.io/github/license/Paraschamoli/news-agent" alt="License">
