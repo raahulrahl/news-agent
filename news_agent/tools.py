@@ -60,6 +60,30 @@ RSS_FEEDS = {
     "wired": "https://www.wired.com/feed/rss",
 }
 
+# Alternative AI News feeds (fallbacks)
+AI_NEWS_FALLBACKS = [
+    "https://www.artificialintelligence-news.com/feed/",
+    "https://venturebeat.com/ai/feed/",
+    "https://www.technologyreview.com/feed/",
+]
+
+# Alternative WSJ feeds (fallbacks)
+WSJ_TECH_FALLBACKS = [
+    ("https://feeds.wsj.com/rss/tech", "wsj-tech"),
+    ("https://feeds.dowjones.com/tech/rss", "wsj-tech"),
+    ("https://www.reuters.com/technology/rss.xml", "reuters-tech"),
+    ("https://techcrunch.com/category/artificial-intelligence/feed/", "techcrunch-ai"),
+    ("https://feeds.bloomberg.com/technology/news.rss", "bloomberg-tech"),
+]
+
+WSJ_MARKETS_FALLBACKS = [
+    ("https://feeds.wsj.com/rss/markets", "wsj-markets"),
+    ("https://feeds.dowjones.com/markets/rss", "wsj-markets"),
+    ("https://www.reuters.com/business/marketsNews/rss.xml", "reuters-markets"),
+    ("https://feeds.bloomberg.com/markets/news.rss", "bloomberg-markets"),
+    ("https://finance.yahoo.com/news/rssindex", "yahoo-finance"),
+]
+
 # HTTP Headers for browser-like requests
 BROWSER_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -159,6 +183,8 @@ def api_retry(func):
                     "502",
                     "503",
                     "504",
+                    "401",  # Unauthorized - might be temporary
+                    "408",  # Request timeout
                 ]
             )
         ),
@@ -268,8 +294,35 @@ def parse_techcrunch_rss(content: str) -> list[dict[str, Any]]:
         raise RSSParsingError from e
 
 
+def parse_generic_rss(content: str) -> list[dict[str, Any]]:
+    """Parse generic RSS feed with basic elements."""
+    try:
+        root = ET.fromstring(content)
+
+        items = []
+        for item in root.findall(".//item")[:30]:
+            title = get_element_text(item, "title")
+            link = get_element_text(item, "link")
+            description = get_element_text(item, "description")
+            pub_date = get_element_text(item, "pubDate")
+            author = get_element_text(item, "author")
+
+            items.append({
+                "title": title,
+                "link": link,
+                "description": description,
+                "pub_date": format_date_string(pub_date),
+                "author": author or "",
+            })
+
+        return items
+    except Exception as e:
+        logger.exception("Error parsing generic RSS")
+        raise RSSParsingError from e
+
+
 def parse_wsj_rss(content: str) -> list[dict[str, Any]]:
-    """Parse Wall Street Journal RSS feed."""
+    """Parse WSJ RSS feed with multiple namespace support."""
     try:
         root = ET.fromstring(content)
 
@@ -280,11 +333,19 @@ def parse_wsj_rss(content: str) -> list[dict[str, Any]]:
             description = get_element_text(item, "description")
             pub_date = get_element_text(item, "pubDate")
 
-            # Extract multiple authors
+            # Extract multiple authors with namespace handling
             authors = []
-            for author_elem in item.findall(".//dc:creator"):
-                if author_elem.text:
-                    authors.append(author_elem.text.strip())
+            try:
+                # Try with Dublin Core namespace
+                namespaces = {"dc": "http://purl.org/dc/elements/1.1/"}
+                for author_elem in item.findall(".//dc:creator", namespaces):
+                    if author_elem.text:
+                        authors.append(author_elem.text.strip())
+            except Exception:
+                # Fallback: try without namespace
+                for author_elem in item.findall(".//creator"):
+                    if author_elem.text:
+                        authors.append(author_elem.text.strip())
 
             # Extract image
             image_url = extract_image_url(item)
@@ -295,9 +356,8 @@ def parse_wsj_rss(content: str) -> list[dict[str, Any]]:
                 "link": link,
                 "description": description,
                 "pub_date": format_date_string(pub_date),
-                "authors": authors,
+                "author": ", ".join(authors) if authors else "",
                 "image_url": image_url,
-                "category": "Business/Finance",
             })
 
         return items
@@ -378,15 +438,30 @@ def parse_wired_rss(content: str) -> list[dict[str, Any]]:
                 if cat.text:
                     categories.append(cat.text.strip())
 
-            # Extract media thumbnail
+            # Extract media thumbnail with proper namespace handling
             thumbnail = None
-            media_thumb = item.find(".//media:thumbnail")
-            if media_thumb is not None:
-                thumbnail = {
-                    "url": media_thumb.get("url"),
-                    "width": media_thumb.get("width"),
-                    "height": media_thumb.get("height"),
-                }
+            try:
+                # Try with media namespace
+                namespaces = {"media": "http://search.yahoo.com/mrss/"}
+                media_thumb = item.find(".//media:thumbnail", namespaces)
+                if media_thumb is not None:
+                    thumbnail = {
+                        "url": media_thumb.get("url"),
+                        "width": media_thumb.get("width"),
+                        "height": media_thumb.get("height"),
+                    }
+            except Exception as e:
+                # Fallback: try without namespace
+                try:
+                    media_thumb = item.find(".//thumbnail")
+                    if media_thumb is not None:
+                        thumbnail = {
+                            "url": media_thumb.get("url"),
+                            "width": media_thumb.get("width"),
+                            "height": media_thumb.get("height"),
+                        }
+                except Exception:
+                    logger.debug(f"Failed to extract thumbnail: {e}")
 
             items.append({
                 "source": "wired",
@@ -418,23 +493,82 @@ PARSERS = {
     "wsj-markets": parse_wsj_rss,
     "ainews": parse_ainews_rss,
     "wired": parse_wired_rss,
+    "bloomberg-tech": parse_generic_rss,
+    "bloomberg-markets": parse_generic_rss,
+    "reuters-tech": parse_generic_rss,
+    "reuters-markets": parse_generic_rss,
+    "techcrunch-ai": parse_techcrunch_rss,
+    "yahoo-finance": parse_generic_rss,
 }
 
 
-async def get_rss_stories(source: str, max_stories: int = 30) -> dict[str, Any]:
-    """Fetch and parse RSS stories from a specific news source."""
-    source = validate_feed_source(source)
+async def _fetch_with_fallbacks(source: str, fallbacks: list[tuple[str, str]]) -> tuple[str | None, str]:
+    """Fetch content with fallback URLs and return both content and parser type."""
+    content = None
+    parser_type = ""
+    for url, parser in fallbacks:
+        try:
+            content = await fetch_rss_content(url)
+            if content:
+                logger.info(f"Successfully fetched from {source} fallback: {url}")
+                parser_type = parser
+                break
+        except Exception as e:
+            logger.warning(f"Failed to fetch from {url}: {e}")
+            continue
 
+    if content is None:
+        logger.error(f"All {source} feeds failed")
+        return None, parser_type
+
+    return content, parser_type
+
+
+async def get_rss_stories(source: str, max_stories: int = 30) -> dict[str, Any]:
+    """Fetch and parse RSS stories from a specific source."""
     logger.info(f"Fetching RSS stories from {source}")
 
-    # Fetch RSS content
-    url = RSS_FEEDS[source]
-    content = await fetch_rss_content(url)
+    # Fetch RSS content with fallbacks
+    if source == "ainews":
+        content, _ = await _fetch_with_fallbacks("AI News", [(url, "ainews") for url in AI_NEWS_FALLBACKS])
+        if not content:
+            return {
+                "source": source,
+                "total_stories": 0,
+                "stories": [],
+                "fetch_time": datetime.datetime.now().isoformat(),
+                "error": "All AI News feeds failed",
+            }
+    elif source == "wsj-tech":
+        content, parser_type = await _fetch_with_fallbacks("WSJ Tech", WSJ_TECH_FALLBACKS)
+        if not content:
+            return {
+                "source": source,
+                "total_stories": 0,
+                "stories": [],
+                "fetch_time": datetime.datetime.now().isoformat(),
+                "error": "All WSJ Tech feeds failed",
+            }
+    elif source == "wsj-markets":
+        content, parser_type = await _fetch_with_fallbacks("WSJ Markets", WSJ_MARKETS_FALLBACKS)
+        if not content:
+            return {
+                "source": source,
+                "total_stories": 0,
+                "stories": [],
+                "fetch_time": datetime.datetime.now().isoformat(),
+                "error": "All WSJ Markets feeds failed",
+            }
+    else:
+        # Fetch RSS content for other sources
+        url = RSS_FEEDS[source]
+        content = await fetch_rss_content(url)
+        parser_type = source
 
-    # Parse based on source
-    parser = PARSERS.get(source)
+    # Parse based on source or fallback parser type
+    parser = PARSERS.get(parser_type, parse_generic_rss)
     if not parser:
-        logger.error(f"No parser available for source: {source}")
+        logger.error(f"No parser available for source: {parser_type}")
         raise NoParserAvailableError
 
     stories = parser(content)
